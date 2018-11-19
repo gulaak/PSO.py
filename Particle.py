@@ -1,10 +1,12 @@
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib as cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib import animation
 from drawnow import *
-def ObjFunction(X):
+def fitnessFunction(X):
     X = X+5
     dim = len(X)
     return np.sum(np.square(X)- 10*np.cos(2*np.pi*X)) + 10*dim
@@ -27,16 +29,17 @@ class Particle(object):
     def __str__(self):
         return f"Position: {self.position} V: {self.velocity} O: {self.o} pBest: {self.pBest}"
 
-    def ObjFunction(self):
+    def fitnessFunction(self):
         temp = self.position + 5
         dim = len(self.position)
         self.o = np.sum(np.square(temp) - 10*np.cos(2*np.pi * temp)) + 10*dim
 
     def plotParticle(self):
-        self.handle, = plt.plot(self.position[0],self.position[1], marker='.',markersize=11,color='k')
-    def moveParticle(self,x,y):
-        self.handle.set_ydata(y)
-        self.handle.set_xdata(x)
+        self.handle, = plt.plot(self.position[0],self.position[1], marker='$*$',markersize=11,color='k')
+    def moveParticle(self):
+
+            self.handle.set_ydata(self.position[1])
+            self.handle.set_xdata(self.position[0])
 
 
 
@@ -68,18 +71,20 @@ class Swarm:
 
 
 class psoParam:
-    numOfParticles = 36
-    iterations = 200
+    numOfParticles = 10
+    iterations = 100
     movingLength = 20
     c1 =2
     c2 = 2
     wMax = 0.9
     wMin = 0.2
+    numOfVars = 2
     vMax = 6
     moving_x = np.zeros(movingLength*numOfParticles).reshape(numOfParticles,movingLength)
     moving_y = np.zeros(movingLength*numOfParticles).reshape(numOfParticles,movingLength)
     first_loc = np.zeros(numOfParticles*2).reshape(numOfParticles,2)
     second_loc = np.zeros(numOfParticles*2).reshape(numOfParticles,2)
+    gBest = list()
     @classmethod
     def setParticles(cls,num):
         cls.numOfParticles = num
@@ -106,13 +111,19 @@ z = np.zeros(900).reshape(30,30)
 for k1 in range(len(X1)):
     for k2 in range(len(X1)):
         X = np.array([X1[k1,k2], X2[k1,k2]])
-        z[k1,k2] = ObjFunction(X)
+        z[k1,k2] = fitnessFunction(X)
 breaks = np.linspace(-1,1,11)
 
-plt.figure()
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+
+surf = ax.plot_surface(X1,X2,z,cmap="autumn",linewidth=0,antialiased=False)
+fig.colorbar(surf, shrink=0.5, aspect=5)
+
+
+fig = plt.figure()
 CS1 = plt.contour(X1,X2,z,20)
 
-#plt.colorbar(ticks= breaks,orientation='vertical')
 
 x = np.linspace(-10,10,6)
 y = x
@@ -125,19 +136,19 @@ for t1 in range(len(x)):
 
 
 for particle in swarm: # initialize particles
-   particle.velocity = np.random.random(2)
+   particle.velocity = np.random.random(psoParam.numOfVars)
    #particle.position = (np.random.random(2) * 2*10) -10
-   particle.pBest.position = np.random.random(2)*psoParam.vMax
+   particle.pBest.position = np.random.random(psoParam.numOfVars)*psoParam.vMax
    particle.pBest.o = np.inf
    particle.plotParticle()
 
 
 
-swarm.gBest.position = np.zeros(2) # global best position starts at origin
+swarm.gBest.position = np.zeros(psoParam.numOfVars) # global best position starts at origin
 swarm.gBest.o = np.inf
 for t in range(psoParam.iterations):
     for particle in swarm:
-        particle.ObjFunction()
+        particle.fitnessFunction()
 
         if(particle.o < particle.pBest.o):
             particle.pBest.o = particle.o
@@ -149,12 +160,10 @@ for t in range(psoParam.iterations):
     w = psoParam.wMax - t*((psoParam.wMax-psoParam.wMin)/psoParam.iterations) # update intertia weight
     idx=0
     for particle in swarm:
-        #first_vel = particle.velocity
+
         particle.velocity = w * particle.velocity + psoParam.c1 * np.random.random(2) * \
         (particle.pBest.position - particle.position) + \
-        psoParam.c2 * np.random.random(2) *(swarm.gBest.position - particle.position)
-
-       # second_vel = particle.velocity
+        psoParam.c2 * np.random.random(psoParam.numOfVars) *(swarm.gBest.position - particle.position)
 
         idxx = np.where(particle.velocity > psoParam.vMax)
         particle.velocity[idxx] = psoParam.vMax * np.random.random()
@@ -162,29 +171,36 @@ for t in range(psoParam.iterations):
         idxx = np.where(particle.velocity < -psoParam.vMax)
         particle.velocity[idxx] = -psoParam.vMax * np.random.random()
 
-        psoParam.first_loc[idx,:] = particle.position
+        #psoParam.first_loc[idx,:] = particle.position
         particle.position = particle.position + particle.velocity
-        psoParam.second_loc[idx,:] = particle.position
+
+        #psoParam.second_loc[idx,:] = particle.position
 
         idxx = np.where(particle.position > ub)
         particle.position[idxx] = ub
 
         idxx = np.where(particle.position <lb)
         particle.position[idxx] = lb
+        particle.moveParticle()
+        #psoParam.moving_x[idx,:] = np.linspace(psoParam.first_loc[idx,0],psoParam.second_loc[idx,0],psoParam.movingLength)
+        #psoParam.moving_y[idx,:] = np.linspace(psoParam.first_loc[idx,1],psoParam.second_loc[idx,1],psoParam.movingLength)
 
-
-        psoParam.moving_x[idx,:] = np.linspace(psoParam.first_loc[idx,0],psoParam.second_loc[idx,0],psoParam.movingLength)
-      #  print(psoParam.moving_x)
-        psoParam.moving_y[idx,:] = np.linspace(psoParam.first_loc[idx,1],psoParam.second_loc[idx,1],psoParam.movingLength)
-        #moving_vx = np.linspace(first_vel[0],second_vel[0],psoParam.movingLength)
-        #moving_vy = np.linspace(first_vel[1],second_vel[1],psoParam.movingLength)
         idx = idx+1
-    plt.pause(0.05)
-    for inc in range(psoParam.movingLength):
+    plt.pause(0.001)
 
-        for i in range(psoParam.numOfParticles):
+    # for inc in range(psoParam.movingLength):
+    #
+    #     for particle in swarm:
+    #
+    #         particle.moveParticle(psoParam.moving_x[i,inc],psoParam.moving_y[i,inc])
 
-            swarm.getParticle(i).moveParticle(psoParam.moving_x[i,inc],psoParam.moving_y[i,inc])
+    psoParam.gBest.append(swarm.gBest.o)
+
+
+plt.figure()
+plt.plot(np.linspace(1,psoParam.iterations,psoParam.iterations),psoParam.gBest)
+plt.show()
+
 
 
 
