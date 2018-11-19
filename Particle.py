@@ -5,11 +5,12 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib as cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib import animation
-from drawnow import *
+
 def fitnessFunction(X):
     X = X+5
     dim = len(X)
     return np.sum(np.square(X)- 10*np.cos(2*np.pi*X)) + 10*dim
+	
 
 class pBest:
     def __init__(self):
@@ -19,6 +20,7 @@ class pBest:
         return f"O: {self.o} position: {self.position}"
 
 class Particle(object):
+
     def __init__(self,x =0,y = 0):
         self.position = np.array([x , y])
         self.velocity = np.array([None ,None])
@@ -28,7 +30,8 @@ class Particle(object):
 
     def __str__(self):
         return f"Position: {self.position} V: {self.velocity} O: {self.o} pBest: {self.pBest}"
-
+	
+	
     def fitnessFunction(self):
         temp = self.position + 5
         dim = len(self.position)
@@ -36,12 +39,18 @@ class Particle(object):
 
     def plotParticle(self):
         self.handle, = plt.plot(self.position[0],self.position[1], marker='$*$',markersize=11,color='k')
+		
+    def setPos(self,x,y):
+        self.position=np.array([x,y])
+    
     def moveParticle(self):
+        self.handle.set_ydata(self.position[1])
+        self.handle.set_xdata(self.position[0])
+		
+	
 
-            self.handle.set_ydata(self.position[1])
-            self.handle.set_xdata(self.position[0])
-
-
+		
+	
 
 
 
@@ -51,15 +60,14 @@ class Swarm:
     def __init__(self,x=0,y=0):
        self.swarm = [Particle() for i in range(psoParam.numOfParticles)] #initialize all particles
        self.gBest = pBest()
+	   
     def __str__(self):
         mystring = [i.__str__() for i in self.swarm]
         return str(mystring)
 
     def __len__(self):
         return len(self.swarm)
-
-    def setPos(self,idx,x,y):
-        self.swarm[idx].position = np.array([x,y])
+    
 
     def getParticle(self,idx):
         return self.swarm[idx]
@@ -68,10 +76,13 @@ class Swarm:
     def __iter__(self):
         for i in self.swarm:
             yield(i)
+    def __len__(self):
+        return len(self.swarm)
+  
 
 
 class psoParam:
-    numOfParticles = 10
+    numOfParticles = 36
     iterations = 100
     movingLength = 20
     c1 =2
@@ -80,10 +91,6 @@ class psoParam:
     wMin = 0.2
     numOfVars = 2
     vMax = 6
-    moving_x = np.zeros(movingLength*numOfParticles).reshape(numOfParticles,movingLength)
-    moving_y = np.zeros(movingLength*numOfParticles).reshape(numOfParticles,movingLength)
-    first_loc = np.zeros(numOfParticles*2).reshape(numOfParticles,2)
-    second_loc = np.zeros(numOfParticles*2).reshape(numOfParticles,2)
     gBest = list()
     @classmethod
     def setParticles(cls,num):
@@ -103,10 +110,7 @@ lb = -10
 swarm = Swarm()
 x = np.linspace(-10,10,30)
 y = np.linspace(-10,10,30)
-# x1 = np.linspace(0,2.0*np.pi,n1)
-# x2 = np.linspace(0,2.0*np.pi,n2)
 X1, X2 = np.meshgrid(x,y)
-# z = np.sin(X1)*np.cos(X2)
 z = np.zeros(900).reshape(30,30)
 for k1 in range(len(X1)):
     for k2 in range(len(X1)):
@@ -117,25 +121,30 @@ breaks = np.linspace(-1,1,11)
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-surf = ax.plot_surface(X1,X2,z,cmap="autumn",linewidth=0,antialiased=False)
+surf = ax.plot_surface(X1,X2,z,cmap="cool",linewidth=0,antialiased=False)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
 fig = plt.figure()
 CS1 = plt.contour(X1,X2,z,20)
 
-
-x = np.linspace(-10,10,6)
+print(len(swarm))
+x = np.linspace(-10,10,int(np.sqrt(len(swarm))))
 y = x
 idx = 0
 for t1 in range(len(x)):
     for t2 in range(len(y)):
-        swarm.setPos(idx,x[t1],y[t2])
-        idx = idx+1
+        swarm.getParticle(idx).setPos(x[t1],y[t2])  # place particles in uniform distribution of search space.
+        idx +=1
+ 
+
+	
+
 
 
 
 for particle in swarm: # initialize particles
+
    particle.velocity = np.random.random(psoParam.numOfVars)
    #particle.position = (np.random.random(2) * 2*10) -10
    particle.pBest.position = np.random.random(psoParam.numOfVars)*psoParam.vMax
