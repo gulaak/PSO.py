@@ -3,8 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib as cm
+import matplotlib
+matplotlib.use("Agg")
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.animation import FuncAnimation
+from matplotlib.animation import writers
+
 
 def fitnessFunction(X):
     X = X+5
@@ -207,7 +211,9 @@ def update(iteration):
 
 numOfIterations = psoParam.iterations
 anim = FuncAnimation(myanimfig, update, np.linspace(1,numOfIterations,numOfIterations),init_func=init,interval=100)
-plt.show()
+#plt.show()
+
+anim.save('anim.gif',writer='imagemagick',fps=30)
 
 
 
