@@ -4,16 +4,17 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib as cm
 import matplotlib
-matplotlib.use("Agg")
+#matplotlib.use("Agg")
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.animation import FuncAnimation
 from matplotlib.animation import writers
 
 
-def fitnessFunction(X):
-    X = X+5
-    dim = len(X)
-    return np.sum(np.square(X)- 10*np.cos(2*np.pi*X)) + 10*dim
+def fitnessFunction(X1,X2):
+   # X = X+5
+    #dim = len(X)
+    #return np.sum(np.square(X)- 10*np.cos(2*np.pi*X)) + 10*dim
+   return np.cos(X1) + np.sin(X2)
 	
 
 class pBest:
@@ -37,9 +38,10 @@ class Particle(object):
 	
 	
     def fitnessFunction(self):
-        temp = self.position + 5
-        dim = len(self.position)
-        self.o = np.sum(np.square(temp) - 10*np.cos(2*np.pi * temp)) + 10*dim
+        #temp = self.position + 5
+        #dim = len(self.position)
+        #self.o = np.sum(np.square(temp) - 10*np.cos(2*np.pi * temp)) + 10*dim
+        self.o = np.cos(self.position[0]) + np.cos(self.position[1])
 
     def plotParticle(self):
         self.handle, = plt.plot(self.position[0],self.position[1], marker='$*$',markersize=11,color='k')
@@ -91,7 +93,7 @@ class Swarm:
 
 class psoParam:
     numOfParticles = 36
-    iterations = 100
+    iterations = 200
     movingLength = 20
     c1 =2
     c2 = 2
@@ -116,27 +118,29 @@ ub=10
 lb = -10
 
 swarm = Swarm()
-x = np.linspace(-10,10,30)
-y = np.linspace(-10,10,30)
+x = np.linspace(-2,2,30)
+y = np.linspace(-2,2,30)
 X1, X2 = np.meshgrid(x,y)
 z = np.zeros(900).reshape(30,30)
-for k1 in range(len(X1)):
-    for k2 in range(len(X1)):
-        X = np.array([X1[k1,k2], X2[k1,k2]])
-        z[k1,k2] = fitnessFunction(X)
-breaks = np.linspace(-1,1,11)
+#for k1 in range(len(X1)):
+ #   for k2 in range(len(X1)):
+  #      X = np.array([X1[k1,k2], X2[k1,k2]])
+   #     z[k1,k2] = np.square(X) #fitnessFunction(X)
+#breaks = np.linspace(-1,1,11)
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
+z = -(1+np.cos(12*np.sqrt(np.square(X1)+np.square(X2)))) / ((np.square(X1) + np.square(X2))/2 + 2)
 surf = ax.plot_surface(X1,X2,z,cmap="cool",linewidth=0,antialiased=False)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
 myanimfig = plt.figure()
 CS1 = plt.contour(X1,X2,z,20)
-
-def init():
+myanimfig.colorbar(CS1,shrink=0.5,aspect=5)
+plt.show()
+def init(): # initialization for animation 
     artistarray = []
     x = np.linspace(-10,10,int(np.sqrt(len(swarm))))
     y = x
@@ -150,24 +154,23 @@ def init():
     for particle in swarm: # initialize particles
 
        particle.velocity = np.random.random(psoParam.numOfVars)
-       #particle.position = (np.random.random(2) * 2*10) -10
        particle.pBest.position = np.random.random(psoParam.numOfVars)*psoParam.vMax
-       particle.pBest.o =0 #np.inf
+       particle.pBest.o =np.inf
        particle.plotParticle()
     swarm.gBest.position = np.zeros(psoParam.numOfVars) # global best position starts at origin
-    swarm.gBest.o =0 #np.inf
+    swarm.gBest.o =np.inf
     
 
 
-def update(iteration):
+def update(iteration):  # updates each particle in the swarm specified by some interval
    
         for particle in swarm:
             particle.fitnessFunction()
 
-            if(particle.o > particle.pBest.o):
+            if(particle.o < particle.pBest.o):
                 particle.pBest.o = particle.o
                 particle.pBest.position = particle.position
-            if(particle.o > swarm.gBest.o):
+            if(particle.o < swarm.gBest.o):
                 swarm.gBest.o = particle.o
                 swarm.gBest.position = particle.position
 
@@ -211,9 +214,9 @@ def update(iteration):
 
 numOfIterations = psoParam.iterations
 anim = FuncAnimation(myanimfig, update, np.linspace(1,numOfIterations,numOfIterations),init_func=init,interval=100)
-#plt.show()
+plt.show()
 
-anim.save('anim.gif',writer='imagemagick',fps=30)
+#anim.save('anim.gif',writer='imagemagick',fps=30)
 
 
 
