@@ -43,8 +43,8 @@ X1, X2 = np.meshgrid(x,y)
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-z = -(1 + np.cos(12*np.sqrt(np.square(X1)+np.square(X2)))) / ((np.square(X1) + np.square(X2))/2 +1)
-surf = ax.plot_surface(X1,X2,z,cmap="cool",linewidth=0,antialiased=False)
+z = -(1 + np.cos(12*np.sqrt(np.square(X1)+np.square(X2)))) / -((np.square(X1) + np.square(X2))/2 +1)
+surf = ax.plot_surface(X1,X2,z,cmap="summer",linewidth=0,antialiased=False)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
@@ -68,10 +68,10 @@ def init(): # initialization for animation
        particle.velocity = np.random.random(psoParam.numOfVars)
        particle.position = np.random.uniform(psoParam.lBound,psoParam.uBound,psoParam.numOfVars)
        particle.pBest.position = np.random.random(psoParam.numOfVars)*psoParam.vMax
-       particle.pBest.o =np.inf
+       particle.pBest.o =-np.inf
        particle.plotParticle()
     swarm.gBest.position = np.zeros(psoParam.numOfVars) # global best position starts at origin
-    swarm.gBest.o =np.inf
+    swarm.gBest.o =-np.inf
     
 
 
@@ -80,10 +80,10 @@ def update(iteration):  # updates each particle in the swarm specified by some i
         for particle in swarm:
             particle.fitnessFunction()
 
-            if(particle.o < particle.pBest.o):
+            if(particle.o > particle.pBest.o):
                 particle.pBest.o = particle.o
                 particle.pBest.position = particle.position
-            if(particle.o < swarm.gBest.o):
+            if(particle.o > swarm.gBest.o):
                 swarm.gBest.o = particle.o
                 swarm.gBest.position = particle.position
 
@@ -101,10 +101,9 @@ def update(iteration):  # updates each particle in the swarm specified by some i
             idxx = np.where(particle.velocity < -psoParam.vMax)
             particle.velocity[idxx] = -psoParam.vMax * np.random.random()
 
-            #psoParam.first_loc[idx,:] = particle.position
+            psoParam.first_loc[idx,:] = particle.position
             particle.position = particle.position + particle.velocity
-
-           # psoParam.second_loc[idx,:] = particle.position
+            psoParam.second_loc[idx,:] = particle.position
 
             idxx = np.where(particle.position > psoParam.uBound)
             particle.position[idxx] = psoParam.uBound
@@ -112,14 +111,18 @@ def update(iteration):  # updates each particle in the swarm specified by some i
             idxx = np.where(particle.position <psoParam.lBound)
             particle.position[idxx] = psoParam.lBound
         
-            particle.moveParticle()
-            #psoParam.moving_x[idx,:] = np.linspace(psoParam.first_loc[idx,0],psoParam.second_loc[idx,0],psoParam.movingLength)
-            #psoParam.moving_y[idx,:] = np.linspace(psoParam.first_loc[idx,1],psoParam.second_loc[idx,1],psoParam.movingLength)
+            #particle.moveParticle()
+            psoParam.moving_x[idx,:] = np.linspace(psoParam.first_loc[idx,0],psoParam.second_loc[idx,0],psoParam.movingLength)
+            psoParam.moving_y[idx,:] = np.linspace(psoParam.first_loc[idx,1],psoParam.second_loc[idx,1],psoParam.movingLength)
 
             idx = idx+1
 
-        #for particle in swarm:
-        #    for x in psoParam.moving_x:
+        for particle in swarm:
+            idx = 0
+            for x,y in zip(psoParam.moving_x[idx],psoParam.moving_y[idx]):
+                particle.moveParticle(x,y)
+            idx = idx+1
+
 
         if(iteration==psoParam.iterations):
             for particle in swarm:
