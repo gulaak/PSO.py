@@ -116,9 +116,9 @@ def update(iteration):  # updates each particle in the swarm specified by some i
             psoParam.moving_y[idx,:] = np.linspace(psoParam.first_loc[idx,1],psoParam.second_loc[idx,1],psoParam.movingLength)
 
             idx = idx+1
-
+        idx = 0
         for particle in swarm:
-            idx = 0
+
             for x,y in zip(psoParam.moving_x[idx],psoParam.moving_y[idx]):
                 particle.moveParticle(x,y)
             idx = idx+1
