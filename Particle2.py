@@ -22,22 +22,22 @@ x = np.linspace(psoParam.lBound,psoParam.uBound,30)
 y = np.linspace(psoParam.lBound,psoParam.uBound,30)
 X1, X2 = np.meshgrid(x,y)
 z = np.zeros(900).reshape(30,30)
-for k1 in range(len(X1)):
-   for k2 in range(len(X1)):
-       X = np.array([X1[k1,k2], X2[k1,k2]])
-       z[k1,k2] = fitnessFunction(X)
-breaks = np.linspace(-1,1,11)
+#for k1 in range(len(X1)):
+ #  for k2 in range(len(X1)):
+  #     X = np.array([X1[k1,k2], X2[k1,k2]])
+   #    z[k1,k2] = fitnessFunction(X)
+#breaks = np.linspace(-1,1,11)
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-#z = -(1 + np.cos(12*np.sqrt(np.square(X1)+np.square(X2)))) / ((np.square(X1) + np.square(X2))/2 +1)
+z = -(1 + np.cos(12*np.sqrt(np.square(X1)+np.square(X2)))) / ((np.square(X1) + np.square(X2))/2 +1)
 surf = ax.plot_surface(X1,X2,z,cmap="viridis",linewidth=0,antialiased=False)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
 myanimfig = plt.figure()
-CS1 = plt.contour(X1,X2,z,20)
+CS1 = plt.contourf(X1,X2,z,20)
 myanimfig.colorbar(CS1,shrink=0.5,aspect=5)
 
 def init(): # initialization for animation 
@@ -123,14 +123,13 @@ def update(iteration):  # updates each particle in the swarm specified by some i
 numOfIterations = psoParam.iterations
 
 anim = FuncAnimation(myanimfig, update, np.linspace(1,numOfIterations,numOfIterations),init_func=init,interval=100)
-<<<<<<< HEAD
+
+
 
 #plt.show()
-=======
-plt.show()
->>>>>>> 3710565a61998055f32eaa142efab7da8e42ce46
 
-#anim.save('anim.gif',writer='imagemagick',fps=30)
+
+anim.save('anim.gif',writer='imagemagick',fps=30)
 
 
 
