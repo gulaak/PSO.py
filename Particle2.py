@@ -5,7 +5,7 @@ from ParticleClass import *
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib as cm
 import matplotlib
-#matplotlib.use("Agg")
+matplotlib.use("Agg")
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.animation import FuncAnimation
 from matplotlib.animation import writers
@@ -43,7 +43,7 @@ X1, X2 = np.meshgrid(x,y)
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-z = -(1 + np.cos(12*np.sqrt(np.square(X1)+np.square(X2)))) / -((np.square(X1) + np.square(X2))/2 +1)
+z = -(1 + np.cos(12*np.sqrt(np.square(X1)+np.square(X2)))) / ((np.square(X1) + np.square(X2))/2 +1)
 surf = ax.plot_surface(X1,X2,z,cmap="summer",linewidth=0,antialiased=False)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
@@ -68,10 +68,10 @@ def init(): # initialization for animation
        particle.velocity = np.random.random(psoParam.numOfVars)
        particle.position = np.random.uniform(psoParam.lBound,psoParam.uBound,psoParam.numOfVars)
        particle.pBest.position = np.random.random(psoParam.numOfVars)*psoParam.vMax
-       particle.pBest.o =-np.inf
+       particle.pBest.o =np.inf
        particle.plotParticle()
     swarm.gBest.position = np.zeros(psoParam.numOfVars) # global best position starts at origin
-    swarm.gBest.o =-np.inf
+    swarm.gBest.o =np.inf
     
 
 
@@ -80,10 +80,10 @@ def update(iteration):  # updates each particle in the swarm specified by some i
         for particle in swarm:
             particle.fitnessFunction()
 
-            if(particle.o > particle.pBest.o):
+            if(particle.o < particle.pBest.o):
                 particle.pBest.o = particle.o
                 particle.pBest.position = particle.position
-            if(particle.o > swarm.gBest.o):
+            if(particle.o < swarm.gBest.o):
                 swarm.gBest.o = particle.o
                 swarm.gBest.position = particle.position
 
@@ -133,7 +133,9 @@ def update(iteration):  # updates each particle in the swarm specified by some i
       
 
 numOfIterations = psoParam.iterations
-anim = FuncAnimation(myanimfig, update, np.linspace(1,numOfIterations,numOfIterations),init_func=init,interval=50)
+
+anim = FuncAnimation(myanimfig, update, np.linspace(1,numOfIterations,numOfIterations),init_func=init,interval=100)
+
 #plt.show()
 
 anim.save('anim.gif',writer='imagemagick',fps=30)
