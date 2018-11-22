@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from ParticleClass import *
+from Particle import *
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib as cm
 import matplotlib
@@ -31,12 +31,12 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 z = -(1 + np.cos(12*np.sqrt(np.square(X1)+np.square(X2)))) / -((np.square(X1) + np.square(X2))/2 +1)
-surf = ax.plot_surface(X1,X2,z,cmap="summer",linewidth=0,antialiased=False)
+surf = ax.plot_surface(X1,X2,z,cmap='viridis',linewidth=0,antialiased=False)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
 myanimfig = plt.figure()
-CS1 = plt.contour(X1,X2,z,20)
+CS1 = plt.contourf(X1,X2,z,20)
 myanimfig.colorbar(CS1,shrink=0.5,aspect=5)
 
 def init(): # initialization for animation 
