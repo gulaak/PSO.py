@@ -21,10 +21,10 @@ class Particle(object):
         return f"Position: {self.position} V: {self.velocity} O: {self.o} pBest: {self.pBest}"
 
     def fitnessFunction(self):
-        # temp = self.position + 5
-        # dim = len(self.position)
-        # self.o = np.sum(np.square(temp) - 10*np.cos(2*np.pi * temp)) + 10*dim
-        self.o = -(1 + np.cos(12*np.sqrt(np.square(self.position[0])+np.square(self.position[1])))) / -((np.square(self.position[0]) + np.square(self.position[1]))/2 +1)
+         temp = self.position + 5
+         dim = len(self.position)
+         self.o = np.sum(np.square(temp) - 10*np.cos(2*np.pi * temp)) + 10*dim
+
 
     def plotParticle(self):
         self.handle, = plt.plot(self.position[0], self.position[1], marker='$*$', markersize=11, color='k')
@@ -74,9 +74,11 @@ class psoParam:
     numOfParticles = 36
     iterations = 200
     movingLength = 20
+    ub = 10
+    lb = -10
     c1 = 2
     c2 = 2
-    w=0.7298
+
     wMax = 0.9
     wMin = 0.2
     numOfVars = 2

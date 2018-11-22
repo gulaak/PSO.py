@@ -14,19 +14,6 @@ from matplotlib.animation import writers
 
 
 
-def fitnessFunction(X1,X2):
-   # X = X+5
-    #dim = len(X)
-    #return np.sum(np.square(X)- 10*np.cos(2*np.pi*X)) + 10*dim
-   return np.cos(X1) + np.sin(X2)
-	
-
-
-
-
-
-
-
 
 
 swarm = Swarm()
@@ -134,9 +121,9 @@ def update(iteration):  # updates each particle in the swarm specified by some i
 
 numOfIterations = psoParam.iterations
 anim = FuncAnimation(myanimfig, update, np.linspace(1,numOfIterations,numOfIterations),init_func=init,interval=50)
-#plt.show()
+plt.show()
 
-anim.save('anim.gif',writer='imagemagick',fps=30)
+#anim.save('anim.gif',writer='imagemagick',fps=30)
 
 
 

@@ -1,4 +1,5 @@
 import random
+from Particle import *
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -6,114 +7,23 @@ import matplotlib as cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib import animation
 
+
+
+
 def fitnessFunction(X):
     X = X+5
     dim = len(X)
     return np.sum(np.square(X)- 10*np.cos(2*np.pi*X)) + 10*dim
-	
-
-class pBest:
-    def __init__(self):
-        self.o = None
-        self.position = np.array([None, None])
-    def __str__(self):
-        return f"O: {self.o} position: {self.position}"
-
-class Particle(object):
-
-    def __init__(self,x =0,y = 0):
-        self.position = np.array([x , y])
-        self.velocity = np.array([None ,None])
-        self.o = None
-        self.pBest = pBest()
 
 
-    def __str__(self):
-        return f"Position: {self.position} V: {self.velocity} O: {self.o} pBest: {self.pBest}"
-	
-	
-    def fitnessFunction(self):
-        temp = self.position + 5
-        dim = len(self.position)
-        self.o = np.sum(np.square(temp) - 10*np.cos(2*np.pi * temp)) + 10*dim
-
-    def plotParticle(self):
-        self.handle, = plt.plot(self.position[0],self.position[1], marker='$*$',markersize=11,color='k')
-		
-    def setPos(self,x,y):
-        self.position=np.array([x,y])
-    
-    def moveParticle(self):
-        self.handle.set_ydata(self.position[1])
-        self.handle.set_xdata(self.position[0])
-		
-	
-
-		
-	
-
-
-
-
-
-class Swarm:
-    def __init__(self,x=0,y=0):
-       self.swarm = [Particle() for i in range(psoParam.numOfParticles)] #initialize all particles
-       self.gBest = pBest()
-	   
-    def __str__(self):
-        mystring = [i.__str__() for i in self.swarm]
-        return str(mystring)
-
-    def __len__(self):
-        return len(self.swarm)
-    
-
-    def getParticle(self,idx):
-        return self.swarm[idx]
-
-
-    def __iter__(self):
-        for i in self.swarm:
-            yield(i)
-    def __len__(self):
-        return len(self.swarm)
-  
-
-
-class psoParam:
-    numOfParticles = 36
-    iterations = 100
-    movingLength = 20
-    c1 =2
-    c2 = 2
-    wMax = 0.9
-    wMin = 0.2
-    numOfVars = 2
-    vMax = 6
-    gBest = list()
-    @classmethod
-    def setParticles(cls,num):
-        cls.numOfParticles = num
-    def setIterations(cls,iterations):
-        cls.iterations = iterations
-
-
-
-
-
-n1 = 1010
-n2 = 51
-ub=10
-lb = -10
 
 swarm = Swarm()
 x = np.linspace(-10,10,30)
 y = np.linspace(-10,10,30)
 X1, X2 = np.meshgrid(x,y)
-z = np.zeros(900).reshape(30,30)
+z = np.zeros(30*30).reshape(30,30)
 for k1 in range(len(X1)):
-    for k2 in range(len(X1)):
+     for k2 in range(len(X1)):
         X = np.array([X1[k1,k2], X2[k1,k2]])
         z[k1,k2] = fitnessFunction(X)
 breaks = np.linspace(-1,1,11)
@@ -137,10 +47,6 @@ for t1 in range(len(x)):
         swarm.getParticle(idx).setPos(x[t1],y[t2])  # place particles in uniform distribution of search space.
         idx +=1
  
-
-	
-
-
 
 
 for particle in swarm: # initialize particles
@@ -185,11 +91,11 @@ for t in range(psoParam.iterations):
 
         #psoParam.second_loc[idx,:] = particle.position
 
-        idxx = np.where(particle.position > ub)
-        particle.position[idxx] = ub
+        idxx = np.where(particle.position > psoParam.ub)
+        particle.position[idxx] = psoParam.ub
 
-        idxx = np.where(particle.position <lb)
-        particle.position[idxx] = lb
+        idxx = np.where(particle.position <psoParam.lb)
+        particle.position[idxx] = psoParam.lb
         particle.moveParticle()
         #psoParam.moving_x[idx,:] = np.linspace(psoParam.first_loc[idx,0],psoParam.second_loc[idx,0],psoParam.movingLength)
         #psoParam.moving_y[idx,:] = np.linspace(psoParam.first_loc[idx,1],psoParam.second_loc[idx,1],psoParam.movingLength)
