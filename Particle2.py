@@ -87,7 +87,7 @@ def update(iteration):  # updates each particle in the swarm specified by some i
                 swarm.gBest.o = particle.o
                 swarm.gBest.position = particle.position
 
-        w = psoParam.w * 0.99  #psoParam.wMax - iteration*((psoParam.wMax-psoParam.wMin)/psoParam.iterations) # update intertia weight
+        w = psoParam.wMax - iteration*((psoParam.wMax-psoParam.wMin)/psoParam.iterations) # update intertia weight
         idx=0
         for particle in swarm:
 
@@ -133,10 +133,10 @@ def update(iteration):  # updates each particle in the swarm specified by some i
       
 
 numOfIterations = psoParam.iterations
-anim = FuncAnimation(myanimfig, update, np.linspace(1,numOfIterations,numOfIterations),init_func=init,interval=100)
-plt.show()
+anim = FuncAnimation(myanimfig, update, np.linspace(1,numOfIterations,numOfIterations),init_func=init,interval=50)
+#plt.show()
 
-#anim.save('anim.gif',writer='imagemagick',fps=30)
+anim.save('anim.gif',writer='imagemagick',fps=30)
 
 
 

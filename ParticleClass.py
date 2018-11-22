@@ -73,10 +73,9 @@ class Swarm:
 class psoParam:
     numOfParticles = 36
     iterations = 200
-    movingLength = 20
+    movingLength = 10
     c1 = 2
     c2 = 2
-    w=0.7298
     wMax = 0.9
     wMin = 0.2
     numOfVars = 2
