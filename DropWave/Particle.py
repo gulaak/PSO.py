@@ -73,7 +73,7 @@ class Swarm:
 
 
 class psoParam:
-    numOfParticles = 3
+    numOfParticles = 36
     iterations = 200
     movingLength = 10
     c1 = 2
