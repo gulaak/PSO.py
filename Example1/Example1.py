@@ -16,7 +16,6 @@ def fitnessFunction(X):
     return np.sum(np.square(X)- 10*np.cos(2*np.pi*X)) + 10*dim
 
 
-
 swarm = Swarm()
 x = np.linspace(-10,10,30)
 y = np.linspace(-10,10,30)
@@ -26,22 +25,23 @@ for k1 in range(len(X1)):
      for k2 in range(len(X1)):
         X = np.array([X1[k1,k2], X2[k1,k2]])
         z[k1,k2] = fitnessFunction(X)
-breaks = np.linspace(-1,1,11)
+
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-surf = ax.plot_surface(X1,X2,z,cmap="cool",linewidth=0,antialiased=False)
+surf = ax.plot_surface(X1,X2,z,cmap="viridis",linewidth=0,antialiased=False)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
 fig = plt.figure()
-CS1 = plt.contour(X1,X2,z,20)
+CS1 = plt.contourf(X1,X2,z,20)
 
 print(len(swarm))
 x = np.linspace(-10,10,int(np.sqrt(len(swarm))))
 y = x
 idx = 0
+
 for t1 in range(len(x)):
     for t2 in range(len(y)):
         swarm.getParticle(idx).setPos(x[t1],y[t2])  # place particles in uniform distribution of search space.
@@ -52,7 +52,6 @@ for t1 in range(len(x)):
 for particle in swarm: # initialize particles
 
    particle.velocity = np.random.random(psoParam.numOfVars)
-   #particle.position = (np.random.random(2) * 2*10) -10
    particle.pBest.position = np.random.random(psoParam.numOfVars)*psoParam.vMax
    particle.pBest.o = np.inf
    particle.plotParticle()
@@ -61,7 +60,7 @@ for particle in swarm: # initialize particles
 
 swarm.gBest.position = np.zeros(psoParam.numOfVars) # global best position starts at origin
 swarm.gBest.o = np.inf
-for t in range(psoParam.iterations):
+for t in range(psoParam.generations):
     for particle in swarm:
         particle.fitnessFunction()
 
@@ -72,7 +71,7 @@ for t in range(psoParam.iterations):
             swarm.gBest.o = particle.o
             swarm.gBest.position = particle.position
 
-    w = psoParam.wMax - t*((psoParam.wMax-psoParam.wMin)/psoParam.iterations) # update intertia weight
+    w = psoParam.wMax - t*((psoParam.wMax-psoParam.wMin)/psoParam.generations) # update intertia weight
     idx=0
     for particle in swarm:
 
@@ -86,34 +85,36 @@ for t in range(psoParam.iterations):
         idxx = np.where(particle.velocity < -psoParam.vMax)
         particle.velocity[idxx] = -psoParam.vMax * np.random.random()
 
-        #psoParam.first_loc[idx,:] = particle.position
+        psoParam.first_loc[idx,:] = particle.position
         particle.position = particle.position + particle.velocity
 
-        #psoParam.second_loc[idx,:] = particle.position
+        psoParam.second_loc[idx,:] = particle.position
 
         idxx = np.where(particle.position > psoParam.ub)
         particle.position[idxx] = psoParam.ub
 
         idxx = np.where(particle.position <psoParam.lb)
         particle.position[idxx] = psoParam.lb
-        particle.moveParticle()
-        #psoParam.moving_x[idx,:] = np.linspace(psoParam.first_loc[idx,0],psoParam.second_loc[idx,0],psoParam.movingLength)
-        #psoParam.moving_y[idx,:] = np.linspace(psoParam.first_loc[idx,1],psoParam.second_loc[idx,1],psoParam.movingLength)
+
+        psoParam.moving_x[idx,:] = np.linspace(psoParam.first_loc[idx,0],psoParam.second_loc[idx,0],psoParam.movingLength)
+        psoParam.moving_y[idx,:] = np.linspace(psoParam.first_loc[idx,1],psoParam.second_loc[idx,1],psoParam.movingLength)
 
         idx = idx+1
+
+    index = 0
+    for particle in swarm:
+            for x,y in zip(psoParam.moving_x[index],psoParam.moving_y[index]):
+
+                particle.moveParticle(x,y)
+            index = index +1
     plt.pause(0.001)
-
-    # for inc in range(psoParam.movingLength):
-    #
-    #     for particle in swarm:
-    #
-    #         particle.moveParticle(psoParam.moving_x[i,inc],psoParam.moving_y[i,inc])
-
-    psoParam.gBest.append(swarm.gBest.o)
+    psoParam.gBest.append(swarm.gBest.o) # create an array of global bests for graph
 
 
 plt.figure()
-plt.plot(np.linspace(1,psoParam.iterations,psoParam.iterations),psoParam.gBest)
+plt.plot(np.linspace(1,psoParam.generations,psoParam.generations),psoParam.gBest)
+plt.title('Global Best Fitness vs Generations')
+
 plt.show()
 
 

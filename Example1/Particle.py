@@ -72,7 +72,7 @@ class Swarm:
 
 class psoParam:
     numOfParticles = 36
-    iterations = 200
+    generations = 200
     movingLength = 20
     ub = 10
     lb = -10
@@ -82,7 +82,7 @@ class psoParam:
     wMax = 0.9
     wMin = 0.2
     numOfVars = 2
-    vMax = 0.6
+    vMax = 2
     uBound = 2
     lBound = -2
     gBest = list()
