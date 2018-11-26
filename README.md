@@ -2,7 +2,7 @@
 
 Particle Swarm Optimization algorithm was based on Ali Mirjalilis matlab implementation.
 
-The python implementation requires two dependanices, matplotlib and numpy.
+The python implementation requires two dependancies, matplotlib and numpy.
 
 The following is a guide to download python, matplotlib, and numpy onto your personal machine to run the code.
 
